@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "ec_ui",
+  "version": "${version}",
+  "name": "Essential Commands UI",
+  "description": "Server-side home / warp UI for Essential Commands: vanilla dialogs where available, and a chest-style inventory UI as a fallback. 为 Essential Commands 提供 /home、/warp 的服务端 UI，并在没有对话框 API 的版本自动改用物品栏界面。",
+  "authors": [
+    "Senmo"
+  ],
+  "contact": {
+    "homepage": "https://github.com/Senmo-awa/ECUI",
+    "issues": "https://github.com/Senmo-awa/ECUI/issues",
+    "sources": "https://github.com/Senmo-awa/ECUI"
+  },
+  "license": "MIT",
+  "icon": "assets/ec_ui/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "com.senmo.ecui.EcUiMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=25",
+    "essential_commands": "*"
+  }
+}

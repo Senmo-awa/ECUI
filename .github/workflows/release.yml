@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+          dir="release/${version}"
+          test -f "${dir}/RELEASE_NOTES.md"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --title "$version" --notes-file "${dir}/RELEASE_NOTES.md"
+          else
+            gh release create "$tag" --title "$version" --notes-file "${dir}/RELEASE_NOTES.md" --verify-tag
+          fi
+          gh release upload "$tag" "${dir}"/*.jar "${dir}/SHA256SUMS" --clobber

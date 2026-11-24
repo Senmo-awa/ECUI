@@ -1,0 +1,71 @@
+name: Publish to Modrinth
+
+# 手动触发，发布前先在 Modrinth 创建项目并配置仓库 secret：
+#   Settings → Secrets and variables → Actions → New repository secret
+#     MODRINTH_TOKEN   = Modrinth PAT（scope 至少 VERSION_CREATE）
+#   Settings → Secrets and variables → Actions → Variables
+#     MODRINTH_PROJECT_ID = 项目 slug 或 ID（默认 ec-ui）
+# 依赖 Kira-NT/mc-publish@v3。
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "release/ 下的版本目录，例如 1.0.0"
+        required: true
+        default: "1.0.0"
+      version-type:
+        description: "Modrinth 版本类型"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - release
+          - beta
+          - alpha
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mc: "26.3"
+          - mc: "26.2"
+          - mc: "26.1.1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require MODRINTH_TOKEN
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          if [ -z "$MODRINTH_TOKEN" ]; then
+            echo "::error::MODRINTH_TOKEN is not configured. Add it in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Publish ECUI ${{ matrix.mc }}
+        uses: Kira-NT/mc-publish@v3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID || 'ec-ui' }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+          files: release/${{ inputs.version }}/ec_ui-${{ inputs.version }}+mc${{ matrix.mc }}.jar
+          name: ECUI ${{ inputs.version }} for Minecraft ${{ matrix.mc }}
+          version: ${{ inputs.version }}+mc${{ matrix.mc }}
+          version-type: ${{ inputs.version-type }}
+          changelog-file: release/${{ inputs.version }}/RELEASE_NOTES.md
+
+          loaders: fabric
+          environment: server
+          game-versions: ${{ matrix.mc }}
+          dependencies: |
+            essential-commands(required){modrinth:6VdDUivB}
+            fabric-api(required){modrinth:P7dR8mSH}
+
+          fail-mode: fail

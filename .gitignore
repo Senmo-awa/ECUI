@@ -1,0 +1,12 @@
+.gradle/
+build/
+run/
+testserver/
+dist/
+libs/*.jar
+libs/versions/*.jar
+diag/
+*.log
+*.iml
+.idea/
+__pycache__/
